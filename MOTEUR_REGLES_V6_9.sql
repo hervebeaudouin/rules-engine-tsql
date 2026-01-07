@@ -1,10 +1,16 @@
 /***********************************************************************
-    MOTEUR DE RÈGLES T-SQL - VERSION 6.9.4
+    MOTEUR DE RÈGLES T-SQL - VERSION 6.9.5
     =====================================================================
     
-    Base:  V6.9.3 + Corrections patterns [_] et récursion profonde
-    Conformité: SPEC V1.7.1 (100%)
+    Base:  V6.9.4 + Standard d'échappement unifié avec backslash
+    Conformité: SPEC V1.7.2 (100%)
     Compatibilité: SQL Server 2017+ (CL >= 140)
+    
+    CORRECTIONS V6.9.5 (par rapport à V6.9.4):
+    ------------------------------------------
+    ✅ FIX-H: Standard d'échappement unifié avec backslash (\)
+    ✅ FIX-I: ESCAPE '\' systématique dans tous les LIKE
+    ✅ FIX-J: Conversion correcte des wildcards échappés
     
     CORRECTIONS V6.9.4 (par rapport à V6.9.3):
     ------------------------------------------
@@ -60,7 +66,7 @@ SET NOCOUNT ON;
 GO
 
 PRINT '======================================================================';
-PRINT '        MOTEUR DE RÈGLES V6.9.4 - INSTALLATION COMPLÈTE              ';
+PRINT '        MOTEUR DE RÈGLES V6.9.5 - INSTALLATION COMPLÈTE              ';
 PRINT '======================================================================';
 PRINT '';
 PRINT 'Date:  ' + CONVERT(VARCHAR, GETDATE(), 120);
@@ -494,7 +500,7 @@ BEGIN
         SELECT @Result = CAST(SUM(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1;
         SET @Result = dbo.fn_NormalizeNumericResult(@Result);
@@ -507,7 +513,7 @@ BEGIN
         SELECT @Result = CAST(COUNT(*) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL;
         RETURN;
@@ -518,7 +524,7 @@ BEGIN
         SELECT @Result = CAST(AVG(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1;
         SET @Result = dbo.fn_NormalizeNumericResult(@Result);
@@ -530,7 +536,7 @@ BEGIN
         SELECT @Result = CAST(MIN(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1;
         SET @Result = dbo.fn_NormalizeNumericResult(@Result);
@@ -542,7 +548,7 @@ BEGIN
         SELECT @Result = CAST(MAX(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1;
         SET @Result = dbo.fn_NormalizeNumericResult(@Result);
@@ -557,7 +563,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL
         ORDER BY SeqId ASC;
@@ -570,7 +576,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL
         ORDER BY SeqId DESC;
@@ -589,7 +595,7 @@ BEGIN
             WITHIN GROUP (ORDER BY SeqId), '')
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL;
         RETURN;
@@ -611,7 +617,7 @@ BEGIN
             WITHIN GROUP (ORDER BY SeqId), '') + '}'
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL;
         RETURN;
@@ -625,7 +631,7 @@ BEGIN
         SELECT @Result = CAST(SUM(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0;
@@ -638,7 +644,7 @@ BEGIN
         SELECT @Result = CAST(COUNT(*) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0;
@@ -650,7 +656,7 @@ BEGIN
         SELECT @Result = CAST(AVG(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0;
@@ -663,7 +669,7 @@ BEGIN
         SELECT @Result = CAST(MIN(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0;
@@ -676,7 +682,7 @@ BEGIN
         SELECT @Result = CAST(MAX(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0;
@@ -689,7 +695,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0
@@ -704,7 +710,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) > 0
@@ -721,7 +727,7 @@ BEGIN
         SELECT @Result = CAST(SUM(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0;
@@ -734,7 +740,7 @@ BEGIN
         SELECT @Result = CAST(COUNT(*) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0;
@@ -746,7 +752,7 @@ BEGIN
         SELECT @Result = CAST(AVG(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0;
@@ -759,7 +765,7 @@ BEGIN
         SELECT @Result = CAST(MIN(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0;
@@ -772,7 +778,7 @@ BEGIN
         SELECT @Result = CAST(MAX(CAST(ScalarValue AS DECIMAL(38,18))) AS NVARCHAR(MAX))
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0;
@@ -785,7 +791,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0
@@ -800,7 +806,7 @@ BEGIN
         SELECT TOP 1 @Result = ScalarValue
         FROM #ThreadState
         WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@ExcludeRule IS NULL OR [Key] <> @ExcludeRule)  -- FIX-C
           AND State = 2 AND ScalarValue IS NOT NULL AND ValueIsNumeric = 1
           AND CAST(ScalarValue AS DECIMAL(38,18)) < 0
@@ -845,10 +851,27 @@ BEGIN
         RETURN;
     END
     
-    -- FIX-E: Construction pattern LIKE (normalisation wildcards) - ordre important
+    -- FIX-J: Construction pattern LIKE (normalisation wildcards) avec ESCAPE
     DECLARE @LikePattern NVARCHAR(500) = @Pattern;
+
+    -- Convertir les wildcards utilisateur en wildcards SQL
+    -- IMPORTANT: L'ordre est crucial - d'abord échapper les \ existants
+    SET @LikePattern = REPLACE(@LikePattern, '\\', CHAR(1));  -- Préserver \\
+    SET @LikePattern = REPLACE(@LikePattern, '\%', CHAR(2));  -- Préserver \%
+    SET @LikePattern = REPLACE(@LikePattern, '\_', CHAR(3));  -- Préserver \_
+    SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- Préserver \*
+    SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- Préserver \?
+
+    -- Convertir * et ? en % et _
     SET @LikePattern = REPLACE(@LikePattern, '*', '%');
     SET @LikePattern = REPLACE(@LikePattern, '?', '_');
+
+    -- Restaurer les caractères échappés avec le format ESCAPE
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(1), '\\');  -- \\ reste \\
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(2), '\%');  -- \% reste \%
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(3), '\_');  -- \_ reste \_
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\%');  -- \* devient \%
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\_');  -- \? devient \_
     
     -- Détermination du filtre IsRule
     DECLARE @FilterIsRule BIT = NULL;
@@ -862,22 +885,17 @@ BEGIN
     IF OBJECT_ID('tempdb..#CallStack') IS NOT NULL
         SELECT TOP 1 @CurrentRule = RuleCode FROM #CallStack ORDER BY Depth DESC;
     
-    -- FIX-F: Détecter si c'est un pattern (avec wildcards) ou une référence directe
-    -- Un _ est échappé s'il est entre crochets [_]
-    -- Approche : vérifier si le pattern contient % ou _ en dehors de [...]
+    -- FIX-I: Détecter si c'est un pattern : contient % ou _ NON échappé
     DECLARE @IsPattern BIT = 0;
-    DECLARE @TempPattern NVARCHAR(500) = @LikePattern;
+    DECLARE @TempCheck NVARCHAR(500) = @LikePattern;
 
-    -- Supprimer les séquences [...] pour la détection
-    WHILE CHARINDEX('[', @TempPattern) > 0 AND CHARINDEX(']', @TempPattern) > CHARINDEX('[', @TempPattern)
-    BEGIN
-        DECLARE @Start INT = CHARINDEX('[', @TempPattern);
-        DECLARE @End INT = CHARINDEX(']', @TempPattern);
-        SET @TempPattern = LEFT(@TempPattern, @Start - 1) + SUBSTRING(@TempPattern, @End + 1, LEN(@TempPattern));
-    END
+    -- Supprimer les séquences échappées pour la détection
+    SET @TempCheck = REPLACE(@TempCheck, '\%', '');
+    SET @TempCheck = REPLACE(@TempCheck, '\_', '');
+    SET @TempCheck = REPLACE(@TempCheck, '\\', '');
 
-    -- Maintenant vérifier si le pattern restant contient % ou _
-    IF @TempPattern LIKE '%[%_]%'
+    -- Vérifier si le pattern restant contient des wildcards non échappés
+    IF @TempCheck LIKE '%[%_]%'
         SET @IsPattern = 1;
     
     -- FIX-G: Pour les références directes à des règles (pas de pattern), s'assurer que la règle est chargée
@@ -921,7 +939,7 @@ BEGIN
         BEGIN
             SELECT TOP 1 @CycleRule = cs.RuleCode 
             FROM #CallStack cs
-            WHERE cs.RuleCode LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+            WHERE cs.RuleCode LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
               AND cs.RuleCode <> @CurrentRule;  -- Exclure self
             
             IF @CycleRule IS NOT NULL
@@ -942,7 +960,7 @@ BEGIN
         SELECT TOP 1 @EvaluatingRule = [Key] 
         FROM #ThreadState 
         WHERE IsRule = 1 AND State = 1 
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND [Key] <> ISNULL(@CurrentRule, '');
         
         IF @EvaluatingRule IS NOT NULL
@@ -961,7 +979,7 @@ BEGIN
         INSERT INTO @RulesToEval (RuleCode)
         SELECT [Key] FROM #ThreadState 
         WHERE IsRule = 1 AND State = 0 
-          AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+          AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND [Key] <> ISNULL(@CurrentRule, '');  -- Exclure self pour éviter récursion
         
         DECLARE @EvalRule NVARCHAR(200), @EvalResult NVARCHAR(MAX), @EvalError NVARCHAR(500);
@@ -996,13 +1014,13 @@ BEGIN
         -- Vérifier si une règle matchant le pattern est en erreur (cycle propagé)
         IF EXISTS (SELECT 1 FROM #ThreadState 
                    WHERE IsRule = 1 AND State = 3 
-                     AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+                     AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
                      AND ErrorCode = 'CYCLE')
         BEGIN
             DECLARE @ErrorRule NVARCHAR(200);
             SELECT TOP 1 @ErrorRule = [Key] FROM #ThreadState 
             WHERE IsRule = 1 AND State = 3 AND ErrorCode = 'CYCLE'
-              AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS;
+              AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS;
             ;THROW 50001, 'Cycle detected in dependency', 1;
         END
     END
@@ -1013,7 +1031,7 @@ BEGIN
         DECLARE @FirstValueForAgg NVARCHAR(MAX);
         SELECT TOP 1 @FirstValueForAgg = ScalarValue 
         FROM #ThreadState 
-        WHERE [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+        WHERE [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
           AND (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
           AND (@CurrentRule IS NULL OR [Key] <> @CurrentRule)  -- FIX-C:  Exclure self
           AND State = 2 AND ScalarValue IS NOT NULL
@@ -1040,7 +1058,7 @@ BEGIN
         DECLARE @RowCount INT = (
             SELECT COUNT(*) FROM #ThreadState 
             WHERE (@FilterIsRule IS NULL OR IsRule = @FilterIsRule)
-              AND [Key] LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+              AND [Key] LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
               AND (@ExcludeForAgg IS NULL OR [Key] <> @ExcludeForAgg)
               AND State = 2 AND ScalarValue IS NOT NULL
         );
@@ -1297,7 +1315,7 @@ BEGIN
     SELECT rd.RuleCode, 1, 0
     FROM dbo.RuleDefinitions rd
     WHERE rd.IsActive = 1
-      AND rd.RuleCode LIKE @LikePattern COLLATE SQL_Latin1_General_CP1_CI_AS
+      AND rd.RuleCode LIKE @LikePattern ESCAPE '\' COLLATE SQL_Latin1_General_CP1_CI_AS
       AND NOT EXISTS (SELECT 1 FROM #ThreadState ts WHERE ts.IsRule = 1 AND ts.[Key] = rd.RuleCode);
 END;
 GO
