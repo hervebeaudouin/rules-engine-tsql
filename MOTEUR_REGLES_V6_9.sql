@@ -1170,16 +1170,6 @@ BEGIN
             UPDATE @TokenResolutions SET ResolvedValue = @ResolvedValue, IsResolved = 1 WHERE Token = @Token;
         END
         
-        -- Vérifier propagation NULL (token non résolu)
-        IF EXISTS (SELECT 1 FROM @TokenResolutions WHERE ResolvedValue IS NULL)
-        BEGIN
-            SET @Result = NULL;
-            UPDATE #ThreadState SET State = 2, ScalarValue = NULL WHERE [Key] = @RuleCode AND IsRule = 1;
-            IF OBJECT_ID('tempdb..#CallStack') IS NOT NULL
-                DELETE FROM #CallStack WHERE RuleCode = @RuleCode;
-            RETURN;
-        END
-        
         -- Calcul IsNumeric
         UPDATE @TokenResolutions
         SET IsNumeric = CASE WHEN TRY_CAST(ResolvedValue AS DECIMAL(38,18)) IS NOT NULL THEN 1 ELSE 0 END;
@@ -1188,8 +1178,11 @@ BEGIN
         DECLARE @CompiledSQL NVARCHAR(MAX) = @NormalizedExpr;
         
         SELECT @CompiledSQL = REPLACE(@CompiledSQL, tr.Token, 
-            CASE WHEN tr.IsNumeric = 1 THEN tr.ResolvedValue 
-                 ELSE '''' + REPLACE(tr.ResolvedValue, '''', '''''') + '''' END)
+            CASE 
+                WHEN tr.ResolvedValue IS NULL THEN 'NULL'
+                WHEN tr.IsNumeric = 1 THEN tr.ResolvedValue 
+                ELSE '''' + REPLACE(tr.ResolvedValue, '''', '''''') + '''' 
+            END)
         FROM @TokenResolutions tr;
         
         -- Exécution SQL
