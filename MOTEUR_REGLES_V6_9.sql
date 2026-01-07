@@ -66,7 +66,7 @@ SET NOCOUNT ON;
 GO
 
 PRINT '======================================================================';
-PRINT '        MOTEUR DE RÈGLES V6.9.4 - INSTALLATION COMPLÈTE              ';
+PRINT '        MOTEUR DE RÈGLES V6.9.5 - INSTALLATION COMPLÈTE              ';
 PRINT '======================================================================';
 PRINT '';
 PRINT 'Date:  ' + CONVERT(VARCHAR, GETDATE(), 120);
@@ -1477,7 +1477,7 @@ BEGIN
         SET @OutputJson = (
             SELECT 'SUCCESS' AS status, 
                    @Mode AS mode, 
-                   '6.9' AS engineVersion,
+                   '6.9.5' AS engineVersion,
                    @SuccessCount AS rulesEvaluated, 
                    @ErrorCount AS rulesInError,
                    DATEDIFF(MILLISECOND, @StartTime, SYSDATETIME()) AS durationMs,
@@ -1505,12 +1505,28 @@ GO
 PRINT '        OK';
 PRINT '';
 PRINT '======================================================================';
-PRINT '           INSTALLATION TERMINÉE - MOTEUR V6.9                       ';
+PRINT '           INSTALLATION TERMINÉE - MOTEUR V6.9.5                     ';
 PRINT '======================================================================';
 PRINT '';
-PRINT '  Version........: 6.9';
-PRINT '  Conformité.....: SPEC V1.6.0 (100%)';
+PRINT '  Version........: 6.9.5';
+PRINT '  Conformité.....: SPEC V1.7.2 (100%)';
 PRINT '  Compatibilité..: SQL Server 2017+';
+PRINT '';
+PRINT '  Corrections V6.9.5:';
+PRINT '    [X] FIX-H: Standard échappement backslash (\)';
+PRINT '    [X] FIX-I: ESCAPE ''\'' systématique dans LIKE';
+PRINT '    [X] FIX-J: Conversion wildcards échappés (\_, \%, \*, \?)';
+PRINT '';
+PRINT '  Corrections V6.9.4:';
+PRINT '    [X] FIX-F: Détection pattern améliorée (gestion [_])';
+PRINT '    [X] FIX-G: Chargement direct références règles';
+PRINT '';
+PRINT '  Corrections V6.9.3:';
+PRINT '    [X] FIX-A: Tokens non résolus → NULL littéral';
+PRINT '    [X] FIX-B: Évaluation forcée règles découvertes';
+PRINT '    [X] FIX-C: Exclusion self-match agrégats';
+PRINT '    [X] FIX-D: Pré-chargement dépendances rule:';
+PRINT '    [X] FIX-E: Gestion patterns wildcards';
 PRINT '';
 PRINT '  Corrections V6.9:';
 PRINT '    [X] FIX-1: CONCAT sans séparateur (per spec)';
@@ -1531,7 +1547,7 @@ PRINT '    [X] OPT-6: Cache LRU auto-nettoyage';
 PRINT '    [X] OPT-7: CallStack détection cycles';
 PRINT '    [X] OPT-8: Lazy discovery règles';
 PRINT '';
-PRINT '  Prochaine étape: Exécuter TESTS_V6_9_EXHAUSTIFS.sql';
+PRINT '  Prochaine étape: Exécuter TESTS_COMPLETS_V6_9_2.sql';
 PRINT '';
 PRINT '======================================================================';
 GO
