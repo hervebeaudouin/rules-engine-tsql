@@ -854,23 +854,25 @@ BEGIN
     -- FIX-H: Construction pattern LIKE avec support échappement backslash
     DECLARE @LikePattern NVARCHAR(500) = @Pattern;
     
-    -- Préserver les séquences échappées avec des placeholders
+    -- Préserver d'abord les séquences échappées explicites (\%, \_, \*, \?)
     SET @LikePattern = REPLACE(@LikePattern, '\%', CHAR(2));  -- \% → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\_', CHAR(3));  -- \_ → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- \* → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- \? → placeholder
-    SET @LikePattern = REPLACE(@LikePattern, '\', CHAR(1));  -- \\ → placeholder
-    
+
+    -- Préserver ensuite les backslashs littéraux restants
+    SET @LikePattern = REPLACE(@LikePattern, '\', CHAR(1));   -- \ → placeholder général
+
     -- Convertir les wildcards utilisateur (* et ?) en wildcards SQL (% et _)
     SET @LikePattern = REPLACE(@LikePattern, '*', '%');
     SET @LikePattern = REPLACE(@LikePattern, '?', '_');
-    
-    -- Restaurer les caractères échappés avec le format ESCAPE
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(1), '\\');  -- \\ reste \\
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(2), '\%');  -- \% reste \%
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(3), '\_');  -- \_ reste \_
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\%');  -- \* devient \% (échappé)
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\_');  -- \? devient \_ (échappé)
+
+    -- Restaurer les placeholders en séquences échappées au format ESCAPE '\'
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(1), '\');   -- backslash littéral
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(2), '\%');  -- % littéral (échappé)
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(3), '\_');  -- _ littéral (échappé)
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\*');  -- * littéral (échappé)
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\?');  -- ? littéral (échappé)
     
     -- Détermination du filtre IsRule
     DECLARE @FilterIsRule BIT = NULL;
