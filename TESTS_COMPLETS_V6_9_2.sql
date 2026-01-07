@@ -1,7 +1,7 @@
 /***********************************************************************
     TESTS COMPLETS V6.9.2 - SUITE EXHAUSTIVE
     =========================================================================
-    Conformité: SPEC V1.7.1
+    Conformité: SPEC V1.7.2
     Objectifs:
       - Couverture complète de tous les cas d'usage
       - Edge cases et cas limites
@@ -17,7 +17,7 @@ SET NOCOUNT ON;
 GO
 
 PRINT '======================================================================';
-PRINT '    TESTS COMPLETS V6.9.2 - SPEC V1.7.1';
+PRINT '    TESTS COMPLETS V6.9.2 - SPEC V1.7.2';
 PRINT '======================================================================';
 PRINT 'Date: ' + CONVERT(VARCHAR, GETDATE(), 120);
 PRINT '';
