@@ -855,11 +855,11 @@ BEGIN
     DECLARE @LikePattern NVARCHAR(500) = @Pattern;
     
     -- Préserver les séquences échappées avec des placeholders
-    SET @LikePattern = REPLACE(@LikePattern, '\\', CHAR(1));  -- \\ → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\%', CHAR(2));  -- \% → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\_', CHAR(3));  -- \_ → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- \* → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- \? → placeholder
+    SET @LikePattern = REPLACE(@LikePattern, '\', CHAR(1));  -- \\ → placeholder
     
     -- Convertir les wildcards utilisateur (* et ?) en wildcards SQL (% et _)
     SET @LikePattern = REPLACE(@LikePattern, '*', '%');
@@ -891,7 +891,7 @@ BEGIN
     -- Supprimer les séquences échappées pour la détection
     SET @TempCheck = REPLACE(@TempCheck, '\%', '');
     SET @TempCheck = REPLACE(@TempCheck, '\_', '');
-    SET @TempCheck = REPLACE(@TempCheck, '\\', '');
+    SET @TempCheck = REPLACE(@TempCheck, '\', '');
     
     -- Vérifier si le pattern restant contient des wildcards non échappés
     IF @TempCheck LIKE '%[%_]%'
