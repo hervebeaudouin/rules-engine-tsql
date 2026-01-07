@@ -860,20 +860,20 @@ BEGIN
     SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- \* → placeholder
     SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- \? → placeholder
 
-    -- Préserver ensuite les backslashs littéraux restants
-    SET @LikePattern = REPLACE(@LikePattern, '\', CHAR(1));   -- \ → placeholder général
+    -- Préserver ensuite les backslashs littéraux restants (un backslash simple)
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(92), CHAR(1));   -- '\' → placeholder général
 
     -- Convertir les wildcards utilisateur (* et ?) en wildcards SQL (% et _)
     SET @LikePattern = REPLACE(@LikePattern, '*', '%');
     SET @LikePattern = REPLACE(@LikePattern, '?', '_');
 
     -- Restaurer les placeholders en séquences échappées au format ESCAPE '\'
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(1), '\');   -- backslash littéral
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(2), '\%');  -- % littéral (échappé)
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(3), '\_');  -- _ littéral (échappé)
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\*');  -- * littéral (échappé)
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\?');  -- ? littéral (échappé)
-    
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(1), CHAR(92));           -- backslash littéral
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(2), CHAR(92) + '%');     -- \% littéral
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(3), CHAR(92) + '_');     -- \_ littéral
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), CHAR(92) + '*');     -- \* littéral
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), CHAR(92) + '?');     -- \? littéral
+	
     -- Détermination du filtre IsRule
     DECLARE @FilterIsRule BIT = NULL;
     IF @Scope = 'RULE' OR @IsRuleRef = 1
