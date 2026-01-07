@@ -2,7 +2,7 @@
     MOTEUR DE RÈGLES T-SQL - VERSION 6.9.5
     =====================================================================
     
-    Base:  V6.9.4 + Standard d'échappement unifié avec backslash
+    Base: V6.9.4 + Standardisation échappement backslash
     Conformité: SPEC V1.7.2 (100%)
     Compatibilité: SQL Server 2017+ (CL >= 140)
     
@@ -10,7 +10,7 @@
     ------------------------------------------
     ✅ FIX-H: Standard d'échappement unifié avec backslash (\)
     ✅ FIX-I: ESCAPE '\' systématique dans tous les LIKE
-    ✅ FIX-J: Conversion correcte des wildcards échappés
+    ✅ FIX-J: Conversion correcte des wildcards échappés (\_, \%, \*, \?)
     
     CORRECTIONS V6.9.4 (par rapport à V6.9.3):
     ------------------------------------------
@@ -66,7 +66,7 @@ SET NOCOUNT ON;
 GO
 
 PRINT '======================================================================';
-PRINT '        MOTEUR DE RÈGLES V6.9.5 - INSTALLATION COMPLÈTE              ';
+PRINT '        MOTEUR DE RÈGLES V6.9.4 - INSTALLATION COMPLÈTE              ';
 PRINT '======================================================================';
 PRINT '';
 PRINT 'Date:  ' + CONVERT(VARCHAR, GETDATE(), 120);
@@ -851,27 +851,26 @@ BEGIN
         RETURN;
     END
     
-    -- FIX-J: Construction pattern LIKE (normalisation wildcards) avec ESCAPE
+    -- FIX-H: Construction pattern LIKE avec support échappement backslash
     DECLARE @LikePattern NVARCHAR(500) = @Pattern;
-
-    -- Convertir les wildcards utilisateur en wildcards SQL
-    -- IMPORTANT: L'ordre est crucial - d'abord échapper les \ existants
-    SET @LikePattern = REPLACE(@LikePattern, '\\', CHAR(1));  -- Préserver \\
-    SET @LikePattern = REPLACE(@LikePattern, '\%', CHAR(2));  -- Préserver \%
-    SET @LikePattern = REPLACE(@LikePattern, '\_', CHAR(3));  -- Préserver \_
-    SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- Préserver \*
-    SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- Préserver \?
-
-    -- Convertir * et ? en % et _
+    
+    -- Préserver les séquences échappées avec des placeholders
+    SET @LikePattern = REPLACE(@LikePattern, '\\', CHAR(1));  -- \\ → placeholder
+    SET @LikePattern = REPLACE(@LikePattern, '\%', CHAR(2));  -- \% → placeholder
+    SET @LikePattern = REPLACE(@LikePattern, '\_', CHAR(3));  -- \_ → placeholder
+    SET @LikePattern = REPLACE(@LikePattern, '\*', CHAR(4));  -- \* → placeholder
+    SET @LikePattern = REPLACE(@LikePattern, '\?', CHAR(5));  -- \? → placeholder
+    
+    -- Convertir les wildcards utilisateur (* et ?) en wildcards SQL (% et _)
     SET @LikePattern = REPLACE(@LikePattern, '*', '%');
     SET @LikePattern = REPLACE(@LikePattern, '?', '_');
-
+    
     -- Restaurer les caractères échappés avec le format ESCAPE
     SET @LikePattern = REPLACE(@LikePattern, CHAR(1), '\\');  -- \\ reste \\
     SET @LikePattern = REPLACE(@LikePattern, CHAR(2), '\%');  -- \% reste \%
     SET @LikePattern = REPLACE(@LikePattern, CHAR(3), '\_');  -- \_ reste \_
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\%');  -- \* devient \%
-    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\_');  -- \? devient \_
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(4), '\%');  -- \* devient \% (échappé)
+    SET @LikePattern = REPLACE(@LikePattern, CHAR(5), '\_');  -- \? devient \_ (échappé)
     
     -- Détermination du filtre IsRule
     DECLARE @FilterIsRule BIT = NULL;
@@ -885,15 +884,15 @@ BEGIN
     IF OBJECT_ID('tempdb..#CallStack') IS NOT NULL
         SELECT TOP 1 @CurrentRule = RuleCode FROM #CallStack ORDER BY Depth DESC;
     
-    -- FIX-I: Détecter si c'est un pattern : contient % ou _ NON échappé
+    -- Détecter si c'est un pattern : contient % ou _ NON échappé
     DECLARE @IsPattern BIT = 0;
     DECLARE @TempCheck NVARCHAR(500) = @LikePattern;
-
+    
     -- Supprimer les séquences échappées pour la détection
     SET @TempCheck = REPLACE(@TempCheck, '\%', '');
     SET @TempCheck = REPLACE(@TempCheck, '\_', '');
     SET @TempCheck = REPLACE(@TempCheck, '\\', '');
-
+    
     -- Vérifier si le pattern restant contient des wildcards non échappés
     IF @TempCheck LIKE '%[%_]%'
         SET @IsPattern = 1;
