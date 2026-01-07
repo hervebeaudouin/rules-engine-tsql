@@ -1,319 +1,281 @@
-# MOTEUR DE RÈGLES V6.5 - CONFORMITÉ SPÉCIFICATION V1.6.0
-## Livraison Complète
+# Rules Engine T-SQL
 
-Date: 2025-12-23  
-Version: 6.5  
-Conformité: REFERENCE v1.6.0 (Normative)
+**Moteur de règles déclaratif pour SQL Server**
 
----
-
-## 📦 CONTENU DE LA LIVRAISON
-
-Cette livraison comprend 4 fichiers principaux pour la migration du moteur de règles vers la version 6.5 conforme à la spécification v1.6.0.
-
-### Fichiers Livrés
-
-1. **MOTEUR_REGLES_V6_5_CONFORME_1_6_0.sql** (850 lignes)
-   - Script SQL complet du moteur v6.5
-   - Installation directe sur SQL Server 2017+
-   - Inclut toutes les procédures, fonctions et triggers
-
-2. **SYNTHESE_MODIFICATIONS_V1_6_0.md** (documentation technique)
-   - Détail exhaustif de toutes les modifications
-   - Comparaisons avant/après par fonctionnalité
-   - Impact performance et complexité
-   - Checklist de conformité
-
-3. **TESTS_CONFORMITE_V1_6_0.sql** (20 tests normatifs)
-   - Suite complète de tests de conformité
-   - Validation de tous les agrégats
-   - Tests de régression
-   - Validation normalisation littéraux
-
-4. **GUIDE_MIGRATION_V6_4_V6_5.md** (guide opérationnel)
-   - Procédure complète de migration étape par étape
-   - Planning détaillé avec timeline
-   - Plan de rollback
-   - Checklist pré/post déploiement
+Version actuelle : **V6.9** (Conforme Spécification v1.7.1)  
+Date : 2026-01-07
 
 ---
 
-## 🎯 CHANGEMENTS MAJEURS V1.6.0
+## 📖 À Propos
 
-### Principe Fondamental
+Le Rules Engine T-SQL est un moteur de règles métier déclaratif permettant d'évaluer des expressions SQL de manière dynamique et performante.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  RÈGLE GLOBALE V1.6.0                                           │
-│  Tous les agrégats opèrent EXCLUSIVEMENT sur valeurs NON NULL  │
-│  Les valeurs NULL sont conservées mais n'influencent jamais     │
-│  les agrégats                                                   │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Principe Cardinal
 
-### Agrégats Modifiés
+> **« Le moteur orchestre ; SQL Server calcule. »**
 
-| Agrégat | Comportement v1.6.0 | Impact |
-|---------|---------------------|--------|
-| **FIRST** | Première valeur NON NULL selon SeqId | ⚠️ Breaking |
-| **LAST** | Dernière valeur NON NULL (NOUVEAU) | ✅ Nouvelle feature |
-| **CONCAT** | Concatène NON NULL, vide → "" | ⚠️ Breaking |
-| **JSONIFY** | Agrège NON NULL, vide → "{}" | ⚠️ Breaking |
-| **SUM/AVG/etc** | Identique (déjà conforme) | ✅ Aucun impact |
+Le moteur délègue 100% des calculs à SQL Server, garantissant :
+- ✅ Performance maximale (exécution native SQL)
+- ✅ Déterminisme complet (comportement SQL Server)
+- ✅ Puissance totale (accès à toutes les fonctionnalités SQL)
 
-### Nouvelles Fonctionnalités
+### Fonctionnalités Clés
 
-✅ **Agrégat LAST:** Symétrique à FIRST, retourne dernière valeur NON NULL  
-✅ **Normalisation décimaux français:** 2,5 → 2.5 (automatique)  
-✅ **Normalisation quotes:** " → ' (automatique)  
-✅ **Optimisations compilation:** Meilleure performance  
+- **Évaluation paresseuse** : Les règles ne sont évaluées que si nécessaire
+- **Gestion de dépendances** : Résolution automatique de l'ordre d'évaluation
+- **Agrégateurs riches** : SUM, AVG, MIN, MAX, COUNT, FIRST, LAST, CONCAT, JSONIFY
+- **Gestion d'erreurs robuste** : Les erreurs n'interrompent jamais l'exécution
+- **Mode DEBUG** : Visibilité complète pour diagnostic
+- **API JSON** : Interface simple et standard
 
 ---
 
-## 📊 FAISABILITÉ & OPTIMISATION
+## 🗂️ Structure du Projet
 
-### Faisabilité Technique: ✅ VALIDÉE
-
-**Complexité:** Modérée
-- Modifications ciblées sur 5 procédures/fonctions
-- Pas de changement de schéma base de données
-- Compatibilité SQL Server 2017+ maintenue
-- Durée déploiement: ~2-5 minutes
-
-**Risques:** 🟡 Contrôlés
-- Rétro-compatibilité partielle (changements identifiés)
-- Tests de régression obligatoires
-- Plan de rollback documenté et testé
-
-### Optimisation & Robustesse: ✅ AMÉLIORÉES
-
-**Performance Attendue:**
 ```
-Cas simples:           +10-20% (règles sans tokens)
-Cas avec NULL:         +30-50% (filtrage précoce)
-Cas avec erreurs:      +30-50% (court-circuit)
-Cas complexes:         +5-15% (agrégats)
+rules-engine-tsql/
+│
+├── README.md                    # Ce fichier
+├── CHANGELOG.md                 # Historique des versions
+│
+├── src/
+│   └── MOTEUR_REGLES.sql        # Moteur V6.9 (version actuelle)
+│
+├── tests/
+│   ├── TESTS_NORMATIFS.sql      # Tests normatifs
+│   ├── TESTS_CONFORMITE.sql     # Tests de conformité v1.6.0
+│   ├── BENCHMARK.sql            # Benchmarks de performance
+│   └── JEU_ESSAI.sql            # Jeu d'essai complet
+│
+├── docs/
+│   ├── SPECIFICATION.md         # Spécification canonique v1.7.1
+│   ├── REFERENCE.md             # Référence consolidée
+│   ├── GUIDE_MIGRATION.md       # Guide de migration v6.4 → v6.5
+│   └── adr/                     # Architecture Decision Records
+│       ├── README.md            # Index des ADR
+│       ├── 0001-principe-delegation-sql-server.md
+│       ├── 0002-semantique-null-unifiee.md
+│       ├── 0003-modele-donnees-atomique.md
+│       ├── 0004-grammaire-tokens.md
+│       └── 0005-gestion-erreurs-non-bloquante.md
+│
+├── migrations/                  # Scripts de migration entre versions
+│
+└── archive/                     # Versions historiques (référence uniquement)
+    ├── README.md                # Explication du dossier archive
+    └── ...                      # Anciennes versions du moteur et docs
 ```
-
-**Robustesse:**
-- ✅ Sémantique unifiée (1 règle vs multiples exceptions)
-- ✅ Comportement prévisible en cas d'erreur
-- ✅ Gestion NULL cohérente tous agrégats
-- ✅ Code plus maintenable (complexité réduite)
 
 ---
 
-## 🚀 DÉMARRAGE RAPIDE
+## 🚀 Démarrage Rapide
 
-### Installation Test (5 minutes)
+### Installation (5 minutes)
 
 ```sql
--- 1. Backup base actuelle
-BACKUP DATABASE [VotreBase] TO DISK = 'C:\Backup\Pre_V6_5.bak'
+-- 1. Backup de votre base de données (IMPORTANT)
+BACKUP DATABASE [VotreBase] TO DISK = 'C:\Backup\Pre_RulesEngine.bak'
 
--- 2. Installer v6.5
-:r MOTEUR_REGLES_V6_5_CONFORME_1_6_0.sql
+-- 2. Installer le moteur
+:r src/MOTEUR_REGLES.sql
 
--- 3. Vérifier installation
+-- 3. Vérifier l'installation
 SELECT 
     name, type_desc, modify_date 
 FROM sys.objects 
 WHERE name LIKE '%Rule%' 
   AND modify_date > DATEADD(MINUTE, -5, GETDATE())
-
--- 4. Test fumée
-DECLARE @Out NVARCHAR(MAX)
-EXEC dbo.sp_RunRulesEngine N'{
-    "variables": [{"key": "test", "value": "OK"}],
-    "rules": []
-}', @Out OUTPUT
-SELECT @Out  -- Doit afficher: {"status":"SUCCESS",...}
 ```
 
-### Tests de Conformité (10 minutes)
+### Premier Test
 
 ```sql
--- Exécuter suite complète
-:r TESTS_CONFORMITE_V1_6_0.sql
+-- Test simple
+DECLARE @Out NVARCHAR(MAX)
+EXEC dbo.sp_RunRulesEngine N'{
+    "variables": [
+        {"key": "price", "value": "100"},
+        {"key": "quantity", "value": "5"}
+    ],
+    "rules": [
+        {"key": "total", "expression": "{price} * {quantity}"}
+    ]
+}', @Out OUTPUT
+
+SELECT @Out
+-- Résultat : {"status":"SUCCESS","total":"500",...}
+```
+
+### Exécuter les Tests
+
+```sql
+-- Tests normatifs
+:r tests/TESTS_NORMATIFS.sql
+
+-- Tests de conformité
+:r tests/TESTS_CONFORMITE.sql
 
 -- Tous les tests doivent passer (PASS)
--- Si échec: consulter GUIDE_MIGRATION pour diagnostic
 ```
 
 ---
 
-## 📋 CHECKLIST DE MIGRATION
+## 📚 Documentation
 
-### Phase Préparation (J-7)
+### Documentation Essentielle
 
-- [ ] Lire GUIDE_MIGRATION_V6_4_V6_5.md intégralement
-- [ ] Effectuer backup complet base production
-- [ ] Cloner environnement de test
-- [ ] Inventorier règles utilisant FIRST/JSONIFY
-- [ ] Créer baseline tests actuels
+| Document | Description |
+|----------|-------------|
+| [SPECIFICATION.md](docs/SPECIFICATION.md) | Spécification canonique v1.7.1 (référence normative) |
+| [REFERENCE.md](docs/REFERENCE.md) | Référence consolidée des fonctionnalités |
+| [CHANGELOG.md](CHANGELOG.md) | Historique complet des versions |
+| [ADR Index](docs/adr/README.md) | Architecture Decision Records |
 
-### Phase Test (J-3)
+### ADR (Architecture Decision Records)
 
-- [ ] Installer v6.5 sur environnement test
-- [ ] Exécuter TESTS_CONFORMITE_V1_6_0.sql (tous PASS)
-- [ ] Exécuter tests de régression métier
-- [ ] Valider performance acceptable
-- [ ] Documenter différences comportement
+Les décisions architecturales majeures sont documentées dans `docs/adr/` :
 
-### Phase Validation (J-1)
-
-- [ ] Validation métier cas d'usage critiques
-- [ ] Vérifier plan rollback fonctionnel
-- [ ] Préparer fenêtre maintenance
-- [ ] Notifier équipes impactées
-
-### Phase Déploiement (Jour J)
-
-- [ ] Arrêter services applicatifs
-- [ ] Backup production final
-- [ ] Exécuter script v6.5
-- [ ] Tests fumée (5 tests critiques)
-- [ ] Redémarrer services
-- [ ] Monitoring actif (1h minimum)
+1. [ADR-0001](docs/adr/0001-principe-delegation-sql-server.md) - **Principe de délégation SQL Server** (fondamental)
+2. [ADR-0002](docs/adr/0002-semantique-null-unifiee.md) - Sémantique NULL unifiée (v1.6.0)
+3. [ADR-0003](docs/adr/0003-modele-donnees-atomique.md) - Modèle de données atomique
+4. [ADR-0004](docs/adr/0004-grammaire-tokens.md) - Grammaire des tokens
+5. [ADR-0005](docs/adr/0005-gestion-erreurs-non-bloquante.md) - Gestion des erreurs non-bloquante
 
 ---
 
-## ⚠️ POINTS D'ATTENTION
+## 🔄 Migration
 
-### Changements Cassants
+### Depuis Version Antérieure
 
-**FIRST avec NULL:**
-```sql
--- Avant: FIRST pouvait retourner NULL si première valeur NULL
--- Après: FIRST ignore NULL, retourne première NON NULL
--- Action: Vérifier règles détectant absence via FIRST
-```
+Consultez le [CHANGELOG.md](CHANGELOG.md) pour identifier votre version actuelle et les changements.
 
-**JSONIFY avec erreurs:**
-```sql
--- Avant: Clés en erreur présentes avec valeur null
--- Après: Clés en erreur omises du JSON
--- Action: Adapter code consommateur JSON
-```
-
-### Validation Requise
-
-✓ Tester TOUS les cas d'usage critiques  
-✓ Vérifier parsing JSON côté application  
-✓ Valider performance sur charges réelles  
-✓ Confirmer gestion erreurs conforme  
+**Migration v6.4 → v6.5+ (Breaking Changes)** :
+- Lire [docs/GUIDE_MIGRATION.md](docs/GUIDE_MIGRATION.md)
+- Exécuter [tests/TESTS_CONFORMITE.sql](tests/TESTS_CONFORMITE.sql)
+- ⚠️ Attention : Changements cassants sur FIRST, CONCAT, JSONIFY
 
 ---
 
-## 📈 BÉNÉFICES ATTENDUS
+## 🎯 Exemples d'Utilisation
 
-### Technique
-
-✅ **Simplicité:** 1 règle universelle vs multiples exceptions  
-✅ **Performance:** +10-50% selon cas d'usage  
-✅ **Robustesse:** Comportement prévisible  
-✅ **Maintenabilité:** Code plus clair et documenté  
-
-### Métier
-
-✅ **Fiabilité:** Gestion erreurs cohérente  
-✅ **Fonctionnalité:** Nouvel agrégat LAST  
-✅ **Flexibilité:** Support décimaux français  
-✅ **Évolutivité:** Base solide pour futures évolutions  
-
----
-
-## 🆘 SUPPORT
-
-### Documentation
-
-- **Technique:** SYNTHESE_MODIFICATIONS_V1_6_0.md
-- **Opérationnelle:** GUIDE_MIGRATION_V6_4_V6_5.md
-- **Tests:** TESTS_CONFORMITE_V1_6_0.sql
-- **Spécification:** REFERENCE_v1_6_0.md (fourni par client)
-
-### Diagnostic
+### Exemple 1 : Calcul Simple
 
 ```sql
--- Mode DEBUG pour investigation détaillée
 DECLARE @Out NVARCHAR(MAX)
 EXEC dbo.sp_RunRulesEngine N'{
-    "mode": "DEBUG",
-    "options": {
-        "returnStateTable": true,
-        "returnDebug": true
-    },
-    "variables": [...],
-    "rules": [...]
+    "variables": [
+        {"key": "prix_ht", "value": "100"},
+        {"key": "tva", "value": "0.20"}
+    ],
+    "rules": [
+        {"key": "prix_ttc", "expression": "{prix_ht} * (1 + {tva})"}
+    ]
 }', @Out OUTPUT
 
--- Analyser debugLog et stateTable dans output JSON
-SELECT JSON_QUERY(@Out, '$.debugLog')
-SELECT JSON_QUERY(@Out, '$.stateTable')
+SELECT JSON_VALUE(@Out, '$.prix_ttc')  -- "120"
 ```
 
-### Rollback
-
-En cas de problème critique:
+### Exemple 2 : Agrégation
 
 ```sql
--- Restore backup pré-migration
-RESTORE DATABASE [VotreBase]
-FROM DISK = 'C:\Backup\Pre_V6_5.bak'
-WITH REPLACE, RECOVERY
+DECLARE @Out NVARCHAR(MAX)
+EXEC dbo.sp_RunRulesEngine N'{
+    "variables": [
+        {"key": "item_1", "value": "10"},
+        {"key": "item_2", "value": "20"},
+        {"key": "item_3", "value": "30"}
+    ],
+    "rules": [
+        {"key": "total", "expression": "{SUM(item_*)}"},
+        {"key": "moyenne", "expression": "{AVG(item_*)}"},
+        {"key": "count", "expression": "{COUNT(item_*)}"}
+    ]
+}', @Out OUTPUT
 
--- Voir GUIDE_MIGRATION section 5 pour procédure complète
+SELECT 
+    JSON_VALUE(@Out, '$.total'),     -- "60"
+    JSON_VALUE(@Out, '$.moyenne'),   -- "20"
+    JSON_VALUE(@Out, '$.count')      -- "3"
+```
+
+### Exemple 3 : Logique Métier Complexe
+
+```sql
+DECLARE @Out NVARCHAR(MAX)
+EXEC dbo.sp_RunRulesEngine N'{
+    "variables": [
+        {"key": "age", "value": "25"},
+        {"key": "salaire", "value": "50000"}
+    ],
+    "rules": [
+        {
+            "key": "eligible_pret",
+            "expression": "CASE WHEN {age} >= 18 AND {salaire} >= 30000 THEN ''OUI'' ELSE ''NON'' END"
+        },
+        {
+            "key": "montant_max",
+            "expression": "CASE WHEN {eligible_pret} = ''OUI'' THEN {salaire} * 3 ELSE 0 END"
+        }
+    ]
+}', @Out OUTPUT
+
+SELECT 
+    JSON_VALUE(@Out, '$.eligible_pret'),  -- "OUI"
+    JSON_VALUE(@Out, '$.montant_max')     -- "150000"
 ```
 
 ---
 
-## ✅ CONFORMITÉ V1.6.0
+## 📊 Performance
 
-### Checklist Normative
+### Benchmarks
 
-- [x] Tous agrégats filtrent NULL explicitement
-- [x] FIRST ignore NULL
-- [x] LAST implémenté (ignore NULL)
-- [x] CONCAT ignore NULL, ensemble vide → ""
-- [x] JSONIFY ignore NULL, ensemble vide → "{}"
-- [x] Normalisation décimaux français (,→.)
-- [x] Normalisation quotes ("→')
-- [x] Normalisation résultats numériques
-- [x] Propagation NULL optimisée
-- [x] Gestion erreurs conforme spec
-- [x] ThreadState structure préservée
-- [x] API JSON inchangée
+Version actuelle (V6.9) par rapport à V6.4 :
 
-### Validation Formelle
+| Cas d'Usage | Amélioration |
+|-------------|--------------|
+| Règles simples (sans tokens) | +10-20% |
+| Règles avec NULL | +30-50% |
+| Règles avec erreurs | +30-50% |
+| Agrégations complexes | +5-15% |
 
-✅ **Code conforme:** 100% spécification v1.6.0  
-✅ **Tests normatifs:** Suite complète fournie  
-✅ **Documentation:** Exhaustive et claire  
-✅ **Migration:** Procédure détaillée et sécurisée  
+Voir [tests/BENCHMARK.sql](tests/BENCHMARK.sql) pour détails.
 
 ---
 
-## 📞 PROCHAINES ÉTAPES
+## 🛠️ Configuration Requise
 
-1. **Lire GUIDE_MIGRATION_V6_4_V6_5.md** (30 min)
-2. **Installer sur environnement test** (5 min)
-3. **Exécuter tests conformité** (10 min)
-4. **Valider avec équipe métier** (1 jour)
-5. **Planifier déploiement production** (selon fenêtre)
+- **SQL Server** : ≥ 2017 (Compatibility Level ≥ 140)
+- **Permissions** : CREATE PROCEDURE, CREATE FUNCTION, ALTER TABLE
+- **Collation** : SQL_Latin1_General_CP1_CI_AS (Case-Insensitive)
 
 ---
 
-## 📄 RÉSUMÉ EXÉCUTIF
+## 🤝 Contribution
 
-**Version cible:** 6.5  
-**Conformité:** REFERENCE v1.6.0 (Normative)  
-**Effort migration:** ~1 semaine (prep + test + deploy)  
-**Risque:** 🟡 Modéré (changements identifiés et maîtrisés)  
-**Bénéfice:** ✅ Simplicité, Performance, Robustesse  
-**Recommandation:** ✅ Procéder à la migration  
+Les contributions sont les bienvenues ! Pour contribuer :
 
-**Statut livraison:** ✅ COMPLET - Prêt pour déploiement
+1. Consulter [docs/SPECIFICATION.md](docs/SPECIFICATION.md) pour les invariants
+2. Consulter [docs/adr/](docs/adr/) pour les décisions architecturales
+3. Ajouter des tests dans [tests/](tests/)
+4. Mettre à jour [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
-*Pour toute question ou support, consulter la documentation technique fournie ou contacter l'équipe architecture.*
+## 📜 Licence
+
+Ce projet est sous licence [indiquer la licence].
+
+---
+
+## 📞 Support
+
+- **Documentation** : Consulter [docs/](docs/)
+- **ADR** : Consulter [docs/adr/](docs/adr/) pour décisions architecturales
+- **Versions Archivées** : Consulter [archive/](archive/) (référence uniquement)
+
+---
+
+**Version actuelle : V6.9 (Spécification v1.7.1)**  
+**Dernière mise à jour : 2026-01-07**
