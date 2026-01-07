@@ -317,11 +317,11 @@ GO
 
 -- 1.5 Normalisation FR (virgule décimale)
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('N_FR1', '2,5+3,5'),
-('N_FR2', '10,25*2'),
-('N_FR3', '{X}+1,5'),
-('N_FR4', '(2,5+3,5)*2,0'),
-('N_FR5', '100,0/3,0');
+('NORM_FR1', '2,5+3,5'),
+('NORM_FR2', '10,25*2'),
+('NORM_FR3', '{X}+1,5'),
+('NORM_FR4', '(2,5+3,5)*2,0'),
+('NORM_FR5', '100,0/3,0');
 GO
 
 -- =========================================================================
@@ -647,11 +647,11 @@ PRINT '';
 -- 1.5 NORMALISATION FR
 -- -------------------------------------------------------------------------
 PRINT '-- 1.5 Normalisation FR --';
-EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.01 Virgule addition', '{"rules":["N_FR1"]}', 'N_FR1', '6';
-EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.02 Virgule multiplication', '{"rules":["N_FR2"]}', 'N_FR2', '20.5';
+EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.01 Virgule addition', '{"rules":["NORM_FR1"]}', 'NORM_FR1', '6';
+EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.02 Virgule multiplication', '{"rules":["NORM_FR2"]}', 'NORM_FR2', '20.5';
 EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.03 Virgule + variable', 
-    '{"rules":["N_FR3"],"variables":[{"key":"X","value":"10"}]}', 'N_FR3', '11.5';
-EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.04 Virgule complexe', '{"rules":["N_FR4"]}', 'N_FR4', '12';
+    '{"rules":["NORM_FR3"],"variables":[{"key":"X","value":"10"}]}', 'NORM_FR3', '11.5';
+EXEC dbo.sp_Test 'FONC', 'NORM', '1.5.04 Virgule complexe', '{"rules":["NORM_FR4"]}', 'NORM_FR4', '12';
 PRINT '';
 
 -- -------------------------------------------------------------------------
