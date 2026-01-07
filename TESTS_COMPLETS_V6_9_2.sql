@@ -330,68 +330,68 @@ GO
 
 -- 2.1 Agrégats de base
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_SUM', '{SUM(N_%)}'),
-('AG_AVG', '{AVG(N_%)}'),
-('AG_MIN', '{MIN(N_%)}'),
-('AG_MAX', '{MAX(N_%)}'),
-('AG_COUNT', '{COUNT(N_%)}');
+('AG_SUM', '{SUM(N[_]%)}'),
+('AG_AVG', '{AVG(N[_]%)}'),
+('AG_MIN', '{MIN(N[_]%)}'),
+('AG_MAX', '{MAX(N[_]%)}'),
+('AG_COUNT', '{COUNT(N[_]%)}');
 GO
 
 -- 2.2 Agrégats positionnels
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_FIRST', '{FIRST(S_%)}'),
-('AG_LAST', '{LAST(S_%)}'),
-('AG_FIRST_N', '{FIRST(N_%)}'),
-('AG_LAST_N', '{LAST(N_%)}');
+('AG_FIRST', '{FIRST(S[_]%)}'),
+('AG_LAST', '{LAST(S[_]%)}'),
+('AG_FIRST_N', '{FIRST(N[_]%)}'),
+('AG_LAST_N', '{LAST(N[_]%)}');
 GO
 
 -- 2.3 Agrégats filtrés POS
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_SUM_POS', '{SUM_POS(V_%)}'),
-('AG_COUNT_POS', '{COUNT_POS(V_%)}'),
-('AG_FIRST_POS', '{FIRST_POS(V_%)}'),
-('AG_LAST_POS', '{LAST_POS(V_%)}'),
-('AG_AVG_POS', '{AVG_POS(V_%)}'),
-('AG_MIN_POS', '{MIN_POS(V_%)}'),
-('AG_MAX_POS', '{MAX_POS(V_%)}');
+('AG_SUM_POS', '{SUM_POS(V[_]%)}'),
+('AG_COUNT_POS', '{COUNT_POS(V[_]%)}'),
+('AG_FIRST_POS', '{FIRST_POS(V[_]%)}'),
+('AG_LAST_POS', '{LAST_POS(V[_]%)}'),
+('AG_AVG_POS', '{AVG_POS(V[_]%)}'),
+('AG_MIN_POS', '{MIN_POS(V[_]%)}'),
+('AG_MAX_POS', '{MAX_POS(V[_]%)}');
 GO
 
 -- 2.4 Agrégats filtrés NEG
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_SUM_NEG', '{SUM_NEG(V_%)}'),
-('AG_COUNT_NEG', '{COUNT_NEG(V_%)}'),
-('AG_FIRST_NEG', '{FIRST_NEG(V_%)}'),
-('AG_LAST_NEG', '{LAST_NEG(V_%)}'),
-('AG_AVG_NEG', '{AVG_NEG(V_%)}'),
-('AG_MIN_NEG', '{MIN_NEG(V_%)}'),
-('AG_MAX_NEG', '{MAX_NEG(V_%)}');
+('AG_SUM_NEG', '{SUM_NEG(V[_]%)}'),
+('AG_COUNT_NEG', '{COUNT_NEG(V[_]%)}'),
+('AG_FIRST_NEG', '{FIRST_NEG(V[_]%)}'),
+('AG_LAST_NEG', '{LAST_NEG(V[_]%)}'),
+('AG_AVG_NEG', '{AVG_NEG(V[_]%)}'),
+('AG_MIN_NEG', '{MIN_NEG(V[_]%)}'),
+('AG_MAX_NEG', '{MAX_NEG(V[_]%)}');
 GO
 
 -- 2.5 Agrégats textuels
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_CONCAT', '{CONCAT(S_%)}'),
-('AG_CONCAT_N', '{CONCAT(N_%)}'),
-('AG_JSON', '{JSONIFY(J_%)}'),
-('AG_JSON_MIX', '{JSONIFY(M_%)}');
+('AG_CONCAT', '{CONCAT(S[_]%)}'),
+('AG_CONCAT_N', '{CONCAT(N[_]%)}'),
+('AG_JSON', '{JSONIFY(J[_]%)}'),
+('AG_JSON_MIX', '{JSONIFY(M[_]%)}');
 GO
 
 -- 2.6 Agrégats sur ensemble vide
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_E_SUM', '{SUM(EMPTY_%)}'),
-('AG_E_COUNT', '{COUNT(EMPTY_%)}'),
-('AG_E_FIRST', '{FIRST(EMPTY_%)}'),
-('AG_E_CONCAT', '{CONCAT(EMPTY_%)}'),
-('AG_E_JSON', '{JSONIFY(EMPTY_%)}');
+('AG_E_SUM', '{SUM(EMPTY[_]%)}'),
+('AG_E_COUNT', '{COUNT(EMPTY[_]%)}'),
+('AG_E_FIRST', '{FIRST(EMPTY[_]%)}'),
+('AG_E_CONCAT', '{CONCAT(EMPTY[_]%)}'),
+('AG_E_JSON', '{JSONIFY(EMPTY[_]%)}');
 GO
 
 -- 2.7 Agrégats avec NULL
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('AG_N_SUM', '{SUM(NL_%)}'),
-('AG_N_COUNT', '{COUNT(NL_%)}'),
-('AG_N_AVG', '{AVG(NL_%)}'),
-('AG_N_FIRST', '{FIRST(NL_%)}'),
-('AG_N_LAST', '{LAST(NL_%)}'),
-('AG_N_CONCAT', '{CONCAT(NL_%)}');
+('AG_N_SUM', '{SUM(NL[_]%)}'),
+('AG_N_COUNT', '{COUNT(NL[_]%)}'),
+('AG_N_AVG', '{AVG(NL[_]%)}'),
+('AG_N_FIRST', '{FIRST(NL[_]%)}'),
+('AG_N_LAST', '{LAST(NL[_]%)}'),
+('AG_N_CONCAT', '{CONCAT(NL[_]%)}');
 GO
 
 -- =========================================================================
@@ -400,11 +400,11 @@ GO
 
 -- 3.1 Scope explicite
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('SC_VAR', '{SUM(var:SC_%)}'),
-('SC_RULE', '{SUM(rule:SC_%)}'),
-('SC_ALL', '{SUM(all:SC_%)}'),
-('SC_VAR_F', '{FIRST(var:SC_%)}'),
-('SC_RULE_F', '{FIRST(rule:SC_%)}');
+('SC_VAR', '{SUM(var:SC[_]%)}'),
+('SC_RULE', '{SUM(rule:SC[_]%)}'),
+('SC_ALL', '{SUM(all:SC[_]%)}'),
+('SC_VAR_F', '{FIRST(var:SC[_]%)}'),
+('SC_RULE_F', '{FIRST(rule:SC[_]%)}');
 GO
 
 -- 3.2 Règles pour scope rule:
@@ -420,17 +420,17 @@ GO
 
 -- 4.1 Wildcards SQL
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('W_PERCENT', '{SUM(W_%)}'),
-('W_UNDER', '{COUNT(W_?)}'),
-('W_MIX', '{SUM(X_%_Y)}'),
-('W_MULTI', '{COUNT(W_%%)}');
+('W_PERCENT', '{SUM(W[_]%)}'),
+('W_UNDER', '{COUNT(W[_]?)}'),
+('W_MIX', '{SUM(X[_]%[_]Y)}'),
+('W_MULTI', '{COUNT(W[_]%%)}');
 GO
 
 -- 4.2 Wildcards utilisateur
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('W_STAR', '{SUM(W_*)}'),
-('W_QUEST', '{COUNT(W_?)}'),
-('W_STAR_MID', '{SUM(X_*_Y)}');
+('W_STAR', '{SUM(W[_]*)}'),
+('W_QUEST', '{COUNT(W[_]?)}'),
+('W_STAR_MID', '{SUM(X[_]*[_]Y)}');
 GO
 
 -- =========================================================================
@@ -462,9 +462,9 @@ INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES
 ('RA_1', '10'),
 ('RA_2', '20'),
 ('RA_3', '30'),
-('RA_SUM', '{SUM(rule:RA_%)}'),
-('RA_AVG', '{AVG(rule:RA_%)}'),
-('RA_FIRST', '{FIRST(rule:RA_%)}');
+('RA_SUM', '{SUM(rule:RA[_]%)}'),
+('RA_AVG', '{AVG(rule:RA[_]%)}'),
+('RA_FIRST', '{FIRST(rule:RA[_]%)}');
 GO
 
 -- 5.4 Self-match (doit s'ignorer)
@@ -472,7 +472,7 @@ INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES
 ('SM_1', '1'),
 ('SM_2', '2'),
 ('SM_3', '3'),
-('SM_SUM', '{SUM(rule:SM_%)}');  -- Doit ignorer SM_SUM lui-même
+('SM_SUM', '{SUM(rule:SM[_]%)}');  -- Doit ignorer SM_SUM lui-même
 GO
 
 -- =========================================================================
@@ -503,11 +503,11 @@ GO
 -- =========================================================================
 
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('DEF_NUM', '{NUM_%}'),           -- Numérique → SUM
-('DEF_TXT', '{TXT_%}'),           -- Texte → FIRST
-('DEF_MIX', '{MIX_%}'),           -- Mixte (1er=txt) → FIRST
+('DEF_NUM', '{NUM[_]%}'),           -- Numérique → SUM
+('DEF_TXT', '{TXT[_]%}'),           -- Texte → FIRST
+('DEF_MIX', '{MIX[_]%}'),           -- Mixte (1er=txt) → FIRST
 ('DEF_ONE', '{SINGLE}'),          -- Un seul
-('DEF_RULE', '{rule:RN_%}'),      -- Règles numériques → SUM
+('DEF_RULE', '{rule:RN[_]%}'),      -- Règles numériques → SUM
 ('RN_1', '10'),
 ('RN_2', '20'),
 ('RN_3', '30');
@@ -533,15 +533,15 @@ GO
 -- 8.3 Expressions complexes
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
 ('EX_NEST', '((((((1+2)+3)+4)+5)+6)+7)'),
-('EX_MULTI_AGG', '{SUM(N_%)}+{AVG(N_%)}+{COUNT(N_%)}'),
+('EX_MULTI_AGG', '{SUM(N[_]%)}+{AVG(N[_]%)}+{COUNT(N[_]%)}'),
 ('EX_COND_NEST', 'CASE WHEN {X}>0 THEN CASE WHEN {X}>50 THEN ''HIGH'' ELSE ''MED'' END ELSE ''LOW'' END');
 GO
 
 -- 8.4 Espaces et formatage
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) VALUES 
-('EX_SPACE1', '{ SUM( N_% ) }'),
-('EX_SPACE2', '{  FIRST  (  S_%  )  }'),
-('EX_SPACE3', '{ SUM ( var : N_% ) }');
+('EX_SPACE1', '{ SUM( N[_]% ) }'),
+('EX_SPACE2', '{  FIRST  (  S[_]%  )  }'),
+('EX_SPACE3', '{ SUM ( var : N[_]% ) }');
 GO
 
 -- Compter les règles
@@ -858,7 +858,7 @@ END
 
 -- Test agrégat sur 100 éléments
 INSERT INTO dbo.RuleDefinitions (RuleCode, Expression) 
-SELECT 'VOL_SUM', '{SUM(rule:VOL_%)}' 
+SELECT 'VOL_SUM', '{SUM(rule:VOL[_]%)}' 
 WHERE NOT EXISTS (SELECT 1 FROM dbo.RuleDefinitions WHERE RuleCode = 'VOL_SUM');
 GO
 
