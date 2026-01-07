@@ -1,9 +1,9 @@
 # RULES ENGINE — SPECIFICATION CANONIQUE
-## Version 1.7.1
+## Version 1.7.2
 
 > **Statut** : Canonique  
 > **Date** : 2026-01-07  
-> **Base** : SPEC v1.7.0 + Référence Consolidée v1.5.4→v1.6.0  
+> **Base** : SPEC v1.7.1 + Standardisation échappement backslash  
 >
 > Ce document est la **référence normative unique** du moteur de règles.  
 > Toute implémentation DOIT se conformer à cette spécification.  
@@ -307,7 +307,37 @@ Avant exécution, les wildcards utilisateur sont normalisés :
 {R_*}    → {R_%}
 ```
 
-## 4.6 Tolérance aux Espaces
+## 4.6 Échappement des caractères spéciaux
+
+Le caractère `\` (backslash) est le caractère d'échappement universel pour les patterns.
+
+### 4.6.1 Séquences d'échappement
+
+| Séquence | Signification |
+|----------|---------------|
+| `\_` | Underscore littéral (pas un wildcard) |
+| `\%` | Pourcentage littéral (pas un wildcard) |
+| `\*` | Astérisque littéral (pas un wildcard) |
+| `\?` | Point d'interrogation littéral (pas un wildcard) |
+| `\\` | Backslash littéral |
+
+### 4.6.2 Exemples
+
+| Pattern | Matche | Ne matche pas |
+|---------|--------|---------------|
+| `N\_%` | `N_1`, `N_2`, `N_ABC` | `NA1`, `NB2` |
+| `SC\_%` | `SC_R1`, `SC_R2` | `SCR1`, `SCORE` |
+| `100\%` | `100%` | `1000`, `100A` |
+| `path\\file` | `path\file` | `path/file` |
+| `W\_*` | `W_1`, `W_2`, `W_ABC` | `WA1`, `WB2` |
+
+### 4.6.3 Règles
+
+1. **Obligatoire** : L'échappement est obligatoire pour utiliser `_`, `%`, `*`, `?` ou `\` comme caractères littéraux dans les patterns.
+2. **Cohérence** : Cette syntaxe est cohérente avec les standards (regex, shell, SQL ESCAPE).
+3. **Implémentation** : Le moteur utilise `ESCAPE '\'` dans toutes les requêtes LIKE.
+
+## 4.7 Tolérance aux Espaces
 
 Les espaces sont tolérés autour des éléments structurants :
 
@@ -320,7 +350,7 @@ Les espaces sont tolérés autour des éléments structurants :
 
 **Recommandation** : Utiliser la forme canonique sans espaces superflus.
 
-## 4.7 Identifiants
+## 4.8 Identifiants
 
 ### Règles
 

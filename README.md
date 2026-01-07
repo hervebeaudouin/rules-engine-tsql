@@ -7,6 +7,20 @@ Conformité: REFERENCE v1.6.0 (Normative)
 
 ---
 
+## Changelog
+
+### V1.7.2 (2026-01-07)
+- **BREAKING CHANGE** : Nouveau standard d'échappement avec backslash (`\`)
+  - `\_` pour underscore littéral (remplace `[_]`)
+  - `\%` pour pourcentage littéral
+  - `\*` pour astérisque littéral
+  - `\?` pour point d'interrogation littéral
+  - `\\` pour backslash littéral
+- Moteur V6.9.5 : Support complet de l'échappement backslash
+- Tous les LIKE utilisent désormais `ESCAPE '\'`
+
+---
+
 ## 📦 CONTENU DE LA LIVRAISON
 
 Cette livraison comprend 4 fichiers principaux pour la migration du moteur de règles vers la version 6.5 conforme à la spécification v1.6.0.
