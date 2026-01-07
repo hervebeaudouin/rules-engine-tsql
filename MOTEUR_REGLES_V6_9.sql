@@ -1,10 +1,15 @@
 /***********************************************************************
-    MOTEUR DE RÈGLES T-SQL - VERSION 6.9.3
+    MOTEUR DE RÈGLES T-SQL - VERSION 6.9.4
     =====================================================================
     
-    Base:  V6.9.2 + Corrections des 8 tests échoués
+    Base:  V6.9.3 + Corrections patterns [_] et récursion profonde
     Conformité: SPEC V1.7.1 (100%)
     Compatibilité: SQL Server 2017+ (CL >= 140)
+    
+    CORRECTIONS V6.9.4 (par rapport à V6.9.3):
+    ------------------------------------------
+    ✅ FIX-F: Détection pattern améliorée (gestion [_])
+    ✅ FIX-G: Chargement direct des références de règles sans wildcard
     
     CORRECTIONS V6.9.3 (par rapport à V6.9.2):
     ------------------------------------------
@@ -55,7 +60,7 @@ SET NOCOUNT ON;
 GO
 
 PRINT '======================================================================';
-PRINT '        MOTEUR DE RÈGLES V6.9.3 - INSTALLATION COMPLÈTE              ';
+PRINT '        MOTEUR DE RÈGLES V6.9.4 - INSTALLATION COMPLÈTE              ';
 PRINT '======================================================================';
 PRINT '';
 PRINT 'Date:  ' + CONVERT(VARCHAR, GETDATE(), 120);
@@ -857,8 +862,45 @@ BEGIN
     IF OBJECT_ID('tempdb..#CallStack') IS NOT NULL
         SELECT TOP 1 @CurrentRule = RuleCode FROM #CallStack ORDER BY Depth DESC;
     
-    -- Détecter si c'est un pattern (avec wildcards) ou une référence directe
-    DECLARE @IsPattern BIT = CASE WHEN @LikePattern LIKE '%[%_]%' THEN 1 ELSE 0 END;
+    -- FIX-F: Détecter si c'est un pattern (avec wildcards) ou une référence directe
+    -- Un _ est échappé s'il est entre crochets [_]
+    -- Approche : vérifier si le pattern contient % ou _ en dehors de [...]
+    DECLARE @IsPattern BIT = 0;
+    DECLARE @TempPattern NVARCHAR(500) = @LikePattern;
+
+    -- Supprimer les séquences [...] pour la détection
+    WHILE CHARINDEX('[', @TempPattern) > 0 AND CHARINDEX(']', @TempPattern) > CHARINDEX('[', @TempPattern)
+    BEGIN
+        DECLARE @Start INT = CHARINDEX('[', @TempPattern);
+        DECLARE @End INT = CHARINDEX(']', @TempPattern);
+        SET @TempPattern = LEFT(@TempPattern, @Start - 1) + SUBSTRING(@TempPattern, @End + 1, LEN(@TempPattern));
+    END
+
+    -- Maintenant vérifier si le pattern restant contient % ou _
+    IF @TempPattern LIKE '%[%_]%'
+        SET @IsPattern = 1;
+    
+    -- FIX-G: Pour les références directes à des règles (pas de pattern), s'assurer que la règle est chargée
+    IF @FilterIsRule = 1 AND @IsPattern = 0
+    BEGIN
+        -- Charger la règle si elle n'existe pas dans #ThreadState
+        IF NOT EXISTS (SELECT 1 FROM #ThreadState WHERE [Key] = @LikePattern AND IsRule = 1)
+        BEGIN
+            IF EXISTS (SELECT 1 FROM dbo.RuleDefinitions WHERE RuleCode = @LikePattern AND IsActive = 1)
+            BEGIN
+                INSERT INTO #ThreadState ([Key], IsRule, State)
+                VALUES (@LikePattern, 1, 0);
+            END
+        END
+        
+        -- Évaluer la règle si elle est en State=0
+        IF EXISTS (SELECT 1 FROM #ThreadState WHERE [Key] = @LikePattern AND IsRule = 1 AND State = 0)
+        BEGIN
+            DECLARE @DirectResult NVARCHAR(MAX), @DirectError NVARCHAR(500);
+            DECLARE @DirectDepth INT = ISNULL((SELECT COUNT(*) FROM #CallStack), 0);
+            EXEC dbo.sp_ExecuteRule @LikePattern, @DirectResult OUTPUT, @DirectError OUTPUT, @DirectDepth;
+        END
+    END
     
     -- OPT-8: Lazy discovery des règles si scope RULE ou ALL avec pattern
     IF @FilterIsRule = 1 OR (@FilterIsRule IS NULL AND @IsPattern = 1)
